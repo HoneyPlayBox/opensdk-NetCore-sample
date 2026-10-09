@@ -1,0 +1,21 @@
+{
+  "version": "1.0",
+  "tracks": [
+    {
+      "id": "vibration",
+      "function": "Vibrate",
+      "actions": [ { "at": 0, "pos": 0 }, { "at": 1000, "pos": 70 }, { "at": 3000, "pos": 0 } ]
+    },
+    {
+      "id": "constrict",
+      "function": "Constrict",
+      "actions": [ { "at": 0, "pos": 0 }, { "at": 1500, "pos": 40 }, { "at": 3000, "pos": 0 } ]
+    },
+    {
+      "id": "position",
+      "function": "Position",
+      "parameters": { "amplitude": 30, "speed": 5 },
+      "actions": [ { "at": 0, "pos": 20 }, { "at": 2000, "pos": 80 }, { "at": 4000, "pos": 20 } ]
+    }
+  ]
+}

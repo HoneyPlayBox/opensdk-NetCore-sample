@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFrameworks>net9.0-windows10.0.19041;net9.0</TargetFrameworks>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Use the published SDK so this sample verifies the NuGet integration path. -->
+    <PackageReference Include="HoneyPlayBox.OpenSDK" Version="1.0.1-beta" />
+  </ItemGroup>
+</Project>

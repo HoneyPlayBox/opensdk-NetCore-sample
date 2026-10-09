@@ -1,0 +1,57 @@
+{
+  "version": "1.0",
+  "inverted": false,
+  "range": 100,
+  "metadata": {
+    "title": "Vibrate and Constrict",
+    "description": "Two synchronized function tracks with a gradual rise and a zero-value ending.",
+    "duration": 30,
+    "tags": ["Vibrate", "Constrict", "dual-track"]
+  },
+  "tracks": [
+    {
+      "id": "vibration",
+      "function": "Vibrate",
+      "actions": [
+        { "at": 0, "pos": 0 },
+        { "at": 2000, "pos": 20 },
+        { "at": 4000, "pos": 35 },
+        { "at": 6000, "pos": 20 },
+        { "at": 8000, "pos": 45 },
+        { "at": 10000, "pos": 25 },
+        { "at": 12000, "pos": 55 },
+        { "at": 14000, "pos": 30 },
+        { "at": 16000, "pos": 65 },
+        { "at": 18000, "pos": 35 },
+        { "at": 20000, "pos": 70 },
+        { "at": 22000, "pos": 40 },
+        { "at": 24000, "pos": 60 },
+        { "at": 26000, "pos": 35 },
+        { "at": 28000, "pos": 15 },
+        { "at": 30000, "pos": 0 }
+      ]
+    },
+    {
+      "id": "constrict",
+      "function": "Constrict",
+      "actions": [
+        { "at": 0, "pos": 0 },
+        { "at": 2000, "pos": 0 },
+        { "at": 4000, "pos": 15 },
+        { "at": 6000, "pos": 0 },
+        { "at": 8000, "pos": 25 },
+        { "at": 10000, "pos": 0 },
+        { "at": 12000, "pos": 30 },
+        { "at": 14000, "pos": 0 },
+        { "at": 16000, "pos": 40 },
+        { "at": 18000, "pos": 0 },
+        { "at": 20000, "pos": 45 },
+        { "at": 22000, "pos": 0 },
+        { "at": 24000, "pos": 35 },
+        { "at": 26000, "pos": 0 },
+        { "at": 28000, "pos": 15 },
+        { "at": 30000, "pos": 0 }
+      ]
+    }
+  ]
+}
