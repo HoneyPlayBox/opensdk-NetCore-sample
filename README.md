@@ -2,6 +2,11 @@
 
 Interactive sample for `HoneyPlayBox.OpenSDK`, using real BLE toys. Uses the published NuGet package `HoneyPlayBox.OpenSDK` version `1.0.1-beta`, not a local SDK project reference; no simulated transport is used.
 
+## Integration Documentation
+
+- [SDK Quick Start](docs/quick-start.md): install, connect, and execute commands.
+- [SDK API Reference](docs/api-reference.md): lifecycle, executors, parameters, and events.
+
 ## Run
 
 Requires .NET 9 SDK, a BLE adapter, a compatible toy, and internet access to load the online product configuration.
