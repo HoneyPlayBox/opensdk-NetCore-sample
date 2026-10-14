@@ -1,7 +1,5 @@
 bin/
 obj/
 Properties/
-# Keep unrelated local docs ignored while publishing SDK integration guides.
-docs/*
-!docs/quick-start.md
-!docs/api-reference.md
+# Integration documentation is maintained in OpenSDKDocument.
+docs/

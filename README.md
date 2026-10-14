@@ -1,26 +1,42 @@
 # HoneyPlayBox Console Sample
 
-Interactive sample for `HoneyPlayBox.OpenSDK`, using real BLE toys. Uses the published NuGet package `HoneyPlayBox.OpenSDK` version `1.0.1-beta`, not a local SDK project reference; no simulated transport is used.
+Interactive sample for `HoneyPlayBox.OpenSDK`, using real BLE toys or a USB HID gateway. This checkout references the local SDK project, including its new HID support; no simulated transport is used.
 
 ## Integration Documentation
 
-- [SDK Quick Start](docs/quick-start.md): install, connect, and execute commands.
-- [SDK API Reference](docs/api-reference.md): lifecycle, executors, parameters, and events.
+- [SDK Introduction](http://127.0.0.1:5173/docs#net-sdk)
+- [SDK Quick Start](http://127.0.0.1:5173/docs?nav=winsdk-for-csharp-nav.json#winsdk-csharp-quick-start): install, connect, and execute commands.
+- [SDK API Reference](http://127.0.0.1:5173/docs?nav=winsdk-for-csharp-nav.json#winsdk-csharp-api-reference): lifecycle, executors, parameters, and events.
+
+Integration documentation is maintained in the OpenSDKDocument project, not this sample repository. These links use its local development server; use the deployed documentation origin when sharing them publicly.
 
 ## Run
 
-Requires .NET 9 SDK, a BLE adapter, a compatible toy, and internet access to load the online product configuration.
+Requires .NET 9 SDK, a BLE adapter or compatible USB HID gateway, a compatible toy, and internet access to load the online product configuration.
 
 ```powershell
-Set-Location "D:\SOLO-Project\JoinHub"
-dotnet restore ".\Net Core\sample\HoneyPlayBoxNetCoreSample.csproj"
-dotnet run --project ".\Net Core\sample\HoneyPlayBoxNetCoreSample.csproj" `
+# Run from this sample directory with the sibling SDK source available.
+dotnet restore ".\HoneyPlayBoxNetCoreSample.csproj"
+dotnet run --project ".\HoneyPlayBoxNetCoreSample.csproj" `
   -c Release -f net9.0-windows10.0.19041
 ```
 
 Keep the toy awake and disconnect it from other apps. Use the Windows target above for native BLE. Generic macOS console builds are not a supported CoreBluetooth setup.
 
 ## Main Menu
+
+The first screen selects the connection type:
+
+```text
+Connection type
+1. HID
+2. BLE
+0. Exit
+```
+
+HID automatically opens a single matching HPB USB gateway using the same default identifiers as the Python SDK: `3352:5B32` or `1A86:E429`. It does not list unrelated system HID devices or require a second selection menu. If multiple supported interfaces exist, set `Hid.DevicePath` explicitly. Toy discovery then uses the gateway radio, without checking the computer's BLE adapter.
+
+BLE uses the computer's Bluetooth adapter and the existing direct discovery/connection flow. A failed HID connection returns to the connection-type menu. Exit disconnects toys and closes the HID gateway when selected.
 
 ```text
 1. Search and connect toys
@@ -93,7 +109,7 @@ Unsupported function entries are hidden. Commands execute sequentially.
 Example path for command `1`:
 
 ```text
-D:\SOLO-Project\JoinHub\Net Core\sample\vibrate-constrict.funscript
+.\vibrate-constrict.funscript
 ```
 
 Loading does not start playback. Enter `2` to start, `3` to pause, and `4` to resume. This script starts with 2 seconds of zero vibration; unsupported tracks are skipped.
@@ -107,4 +123,5 @@ Playback holds original values with a default minimum send interval of 100ms. Re
 - After a Windows BLE write timeout, disconnect and reconnect before retrying. Write-only characteristics cannot use WriteWithoutResponse.
 - Stop the sample and Visual Studio debugging before rebuilding to avoid locked DLLs.
 - Successful compilation does not confirm real-device compatibility.
-- Local SDK source changes do not affect this sample until a new package version is published and its `PackageReference` version is updated.
+- This checkout uses a local `ProjectReference`. A standalone NuGet-based sample must reference a newly published SDK version containing HID support; the old `1.0.1-beta` package does not include these new APIs.
+- See the [API Reference](http://127.0.0.1:5173/docs?nav=winsdk-for-csharp-nav.json#winsdk-csharp-api-reference) for integration contracts, configuration dependencies, and validation boundaries.

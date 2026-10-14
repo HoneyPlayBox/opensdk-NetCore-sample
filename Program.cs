@@ -10,15 +10,8 @@ Console.InputEncoding = System.Text.Encoding.UTF8;
 Console.WriteLine("HoneyPlayBox .NET SDK Console Sample");
 Console.WriteLine("====================================");
 
-var transport = new HoneyPlayBoxToyTransport();
-
-var connector = new ToyConnector(new ToyConnectorOptions
-{
-    AutoReconnect = true,
-    ReconnectMaxAttempts = 3,
-    ReconnectDelayMs = 500,
-    ReconnectMaxDelayMs = 3000
-});
+var connector = await SelectTransportAsync();
+if (connector is null) return;
 
 connector.Discover += (_, toy) => Console.WriteLine($"[Discover] {toy.Name} ({toy.BluetoothName})");
 connector.Connect += (_, state) => Console.WriteLine($"[Connect] {state.Name}: {state.Status}, connected={state.Connected}");
@@ -68,13 +61,21 @@ connector.Feedback += (_, feedback) =>
     Console.WriteLine($"[Feedback] {feedback.Name}: kind={feedback.Kind}, value={feedback.Value}, unit={feedback.Unit}, response={feedback.ResponseStatus}");
 };
 
-var support = await HoneyPlayBoxToyTransport.GetSupportStateAsync();
-Console.WriteLine($"Bluetooth state: supported={support.Supported}, available={support.Available}");
+// HID never probes or opens the local Bluetooth adapter: the USB gateway owns its radio.
+var transportAvailable = true;
+if (connector.Transport == ToyTransportKind.Ble)
+{
+    var support = await HoneyPlayBoxToyTransport.GetSupportStateAsync();
+    transportAvailable = support.Available;
+    Console.WriteLine($"Bluetooth state: supported={support.Supported}, available={support.Available}");
+}
 
+try
+{
 while (true)
 {
     Console.WriteLine();
-    Console.WriteLine("Main menu");
+    Console.WriteLine($"Main menu ({(connector.Transport == ToyTransportKind.Hid ? "HID" : "BLE")})");
     Console.WriteLine("1. Search and connect toys");
     Console.WriteLine("2. Control connected toys");
     Console.WriteLine("3. Read battery");
@@ -84,7 +85,7 @@ while (true)
     switch (await ReadCommandAsync("Enter command: "))
     {
         case "1":
-            await SearchAndConnectAsync(connector, support.Available);
+            await SearchAndConnectAsync(connector, transportAvailable);
             break;
 
         case "2":
@@ -100,7 +101,6 @@ while (true)
             break;
 
         case "0":
-            await DisconnectAllAsync(connector);
             return;
 
         default:
@@ -108,16 +108,77 @@ while (true)
             break;
     }
 }
-
-static async Task SearchAndConnectAsync(ToyConnector connector, bool bluetoothAvailable)
+}
+finally
 {
-    if (!bluetoothAvailable)
+    try
+    {
+        if (connector.Transport == ToyTransportKind.Hid)
+            await connector.DisconnectHidAsync();
+        else
+            await DisconnectAllAsync(connector);
+    }
+    catch (Exception error) { Console.WriteLine($"Disconnect failed: {error.Message}"); }
+}
+
+static async Task<ToyConnector?> SelectTransportAsync()
+{
+    while (true)
+    {
+        Console.WriteLine();
+        Console.WriteLine("Connection type");
+        Console.WriteLine("1. HID");
+        Console.WriteLine("2. BLE");
+        Console.WriteLine("0. Exit");
+        switch (await ReadCommandAsync("Enter connection type: "))
+        {
+            case "0": return null;
+            case "2":
+                return new ToyConnector(new ToyConnectorOptions
+                {
+                    Transport = ToyTransportKind.Ble,
+                    AutoReconnect = true,
+                    ReconnectMaxAttempts = 3,
+                    ReconnectDelayMs = 500,
+                    ReconnectMaxDelayMs = 3000
+                });
+            case "1":
+                ToyConnector? hid = null;
+                try
+                {
+                    hid = new ToyConnector(new ToyConnectorOptions
+                    {
+                        Transport = ToyTransportKind.Hid,
+                        AutoReconnect = false
+                    });
+                    await hid.ConnectHidAsync();
+                    Console.WriteLine("HID gateway connected.");
+                    return hid;
+                }
+                catch (Exception error)
+                {
+                    Console.WriteLine($"HID connection failed: {error.Message}");
+                    if (hid is not null) await hid.DisconnectHidAsync();
+                }
+                break;
+            default:
+                Console.WriteLine("Invalid selection.");
+                break;
+        }
+    }
+}
+
+static async Task SearchAndConnectAsync(ToyConnector connector, bool transportAvailable)
+{
+    if (connector.Transport == ToyTransportKind.Ble && !transportAvailable)
     {
         Console.WriteLine("Bluetooth is not available in this runtime.");
         return;
     }
 
-    Console.WriteLine("Searching toys...");
+    Console.WriteLine(connector.Transport == ToyTransportKind.Hid
+        ? "Searching toys through the HID gateway..."
+        : "Searching toys through Bluetooth...");
     IReadOnlyList<ToyInfo> toys;
     try
     {
